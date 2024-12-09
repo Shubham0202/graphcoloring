@@ -1,50 +1,34 @@
-function [coloring, numColors] = greedyColoring(graph, numSubjects)
-    coloring = -1 * ones(1, numSubjects);  
-        coloring(1) = 0;  
-    available = zeros(1, numSubjects);
-    for u = 2:numSubjects
-        available = zeros(1, numSubjects)
-        for v = 1:numSubjects
-            if graph(u, v) == 1 & coloring(v) ~= -1 then
-                available(coloring(v) + 1) = 1;  // Mark the color of adjacent vertex as unavailable
+function chromatic_number = graph_coloring(n, graph)
+    colors = -ones(1, n);
+    chromatic_number = 0;
+    
+    for u = 1:n
+        available = ones(1, n);
+        
+        for v = 1:n
+            if graph(u, v) == 1 & colors(v) ~= -1 then
+                available(colors(v)) = 0;
             end
         end
-        for c = 0:numSubjects-1
-            if available(c + 1) == 0 then
-                coloring(u) = c;  // Assign the color to vertex u
-                break;
-            end
+        
+        color = 1;
+        while available(color) == 0 do
+            color = color + 1;
         end
+        
+        colors(u) = color;
+        chromatic_number = max(chromatic_number, color);
     end
-    
-    numColors = max(coloring) + 1;
-end
+endfunction
 
-function examSchedule(graph, numSubjects)
-    [coloring, numColors] = greedyColoring(graph, numSubjects);
-    
-    disp("Minimum Time Slots (Chromatic Number): " + string(numColors));
-    disp("Assigned Time Slots to Subjects:");
-    for i = 1:numSubjects
-        disp("Subject " + string(i) + " is assigned to time slot " + string(coloring(i) + 1));
-    end
-end
+n = 5;  // Number of subjects
+graph = [
+    0 1 1 0 0;
+    1 0 1 1 0;
+    1 1 0 0 1;
+    0 1 0 0 1;
+    0 0 1 1 0
+];
 
-clc;
-disp("Exam Scheduling Using Graph Coloring");
-
-numSubjects = input("Enter the number of subjects: ");
-disp("Enter the adjacency matrix (1 if there's a common student, 0 otherwise):");
-graph = zeros(numSubjects, numSubjects);  
-
-for i = 1:numSubjects
-    for j = 1:numSubjects
-        if i != j then
-            graph(i, j) = input("Is there a common student between subject " + string(i) + " and subject " + string(j) + "? (1 for Yes, 0 for No): ");
-        else
-            graph(i, j) = 0;  
-        end
-    end
-end
-
-examSchedule(graph, numSubjects);
+chromatic_number = graph_coloring(n, graph);
+disp("Minimum time slots required: " + string(chromatic_number));
